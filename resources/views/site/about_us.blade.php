@@ -95,11 +95,11 @@
                 <!--boxed-container-->
                 <div class="boxed-container" style="height: 400px;">
                     <div class="boxed-container-wrap">
-                        <div class="bg" data-bg="images/bg/6.jpg"
-                            style="background-image: url(&quot;images/bg/6.jpg&quot;);"></div>
+                        <div class="bg" data-bg="{{ $aboutUs->video_image ? $aboutUs->video_image->path : 'https://placehold.co/1920x1080' }}"
+                            style="background-image: url(&quot;{{ $aboutUs->video_image ? $aboutUs->video_image->path : 'https://placehold.co/1920x1080' }}&quot;);"></div>
                         <div class="overlay"></div>
                         <div class="promo-video">
-                            <a href="https://www.youtube.com/watch?v=OzUkvzyBttA" class="video-popup">
+                            <a href="{{ $aboutUs->video_url }}" class="video-popup">
                                 <div class="video-box-btn color-bg" ><i
                                         class="fas fa-play"></i></div>
                             </a>
