@@ -105,12 +105,12 @@
                     <div class="col-lg-6">
                         <div class="hero-image-collge-wrap">
                             <div class="single-dec_img">
-                                <img src="{{ $aboutUs->image_front ? $aboutUs->image_front->path : 'https://placehold.co/1920x1080' }}"
+                                <img src="{{ $aboutUs->image ? $aboutUs->image->path : 'https://placehold.co/1920x1080' }}"
                                     alt="" class="respimg">
                             </div>
                             <div class="hero_images-collage-item"
                                 style="width: 25%; bottom:  25px; z-index: 15; left: -70px;"><img
-                                    src="{{ $aboutUs->image ? $aboutUs->image->path : 'https://placehold.co/1920x1080' }}"
+                                    src="{{ $aboutUs->image_front ? $aboutUs->image_front->path : 'https://placehold.co/1920x1080' }}"
                                     class="respimg" alt=""></div>
                             <div class="hero_images-collage-item" style="width: 45%; top: -5%; z-index: 11; right: -120px;">
                                 <img src="{{ $aboutUs->image_back ? $aboutUs->image_back->path : 'https://placehold.co/1920x1080' }}"
@@ -143,8 +143,8 @@
             </a>
         </div> --}}
         <div class="content-section dark-bg hidden-section  wide-section" data-scrollax-parent="true">
-            <div class="bg" data-bg="images/bg/25.jpg" data-scrollax="properties: { translateY: '30%' }"
-                style="background-image: url(&quot;images/bg/25.jpg&quot;); transform: translateZ(0px) translateY(24.7098%);">
+            <div class="bg" data-bg="/site/images/bg-25.jpg" data-scrollax="properties: { translateY: '30%' }"
+                style="background-image: url(&quot;/site/images/bg-25.jpg&quot;); transform: translateZ(0px) translateY(24.7098%);">
             </div>
             <div class="overlay overlay-bold"></div>
             <div class="dec-corner dc_rt"></div>
@@ -161,24 +161,26 @@
                 <!--boxed-container-->
                 <div class="boxed-container" style="height: 400px;">
                     <div class="boxed-container-wrap">
-                        <div class="bg" data-bg="images/bg/6.jpg"
-                            style="background-image: url(&quot;images/bg/6.jpg&quot;);"></div>
+                        <div class="bg" data-bg="{{ $aboutUs->video_image ? $aboutUs->video_image->path : 'https://placehold.co/1920x1080' }}"
+                            style="background-image: url(&quot;{{ $aboutUs->video_image ? $aboutUs->video_image->path : 'https://placehold.co/1920x1080' }}&quot;);"></div>
                         <div class="overlay"></div>
                         <div class="promo-video">
-                            <div class="video-box-btn image-popup color-bg" id="html5-videos" data-html="#video1"><i
-                                    class="fas fa-play"></i></div>
+                            <a href="{{ $aboutUs->video_url }}" class="video-popup">
+                                <div class="video-box-btn color-bg" ><i
+                                        class="fas fa-play"></i></div>
+                            </a>
                             <h4>Video {{ $config->short_name_company ? $config->short_name_company : $config->web_title }}
                             </h4>
                         </div>
                     </div>
 
-                    <div style="display:none;" id="video1" class="popup_video"
+                    {{-- <div style="display:none;" id="video1" class="popup_video"
                         data-videolink="https://www.youtube.com/watch?v=f-j9Ciw-K7w&list=RDf-j9Ciw-K7w&start_radio=1">
                         <video class="lg-video-object lg-html5" controls="" preload="none">
                             <source src="https://www.youtube.com/watch?v=f-j9Ciw-K7w&list=RDf-j9Ciw-K7w&start_radio=1"
                                 type="video/mp4">
                         </video>
-                    </div>
+                    </div> --}}
                 </div>
                 <!--boxed-container end-->
                 <div class="section-separator"><span><i class="fa-thin fa-gem"></i></span></div>
@@ -235,7 +237,8 @@
                             <div class="aminites-card-item">
                                 <i class="fa-light fa-croissant"></i>
                                 <h4>Dịch vụ ăn uống</h4>
-                                <p>Bếp nướng BBQ ngoài trời. Đầy đủ dụng cụ bếp: 03 Bếp từ, 03 nồi lẩu, tủ lạnh , ấm siêu tốc, nồi, bát đũa đủ cho 20 người.</p>
+                                <p>Bếp nướng BBQ ngoài trời. Đầy đủ dụng cụ bếp: 03 Bếp từ, 03 nồi lẩu, tủ lạnh , ấm siêu
+                                    tốc, nồi, bát đũa đủ cho 20 người.</p>
                                 <div class="tbc-separator"></div>
                                 <span class="aci_num">05.</span>
                             </div>
@@ -257,7 +260,8 @@
                             <div class="aminites-card-item">
                                 <i class="fa-thin fa-car"></i>
                                 <h4>Giao thông</h4>
-                                <p>Đường đến đây rất thuận tiện và dễ dàng. Có thể đến bằng xe máy, xe ô tô. Cách sân bay Sao Vàng (Thọ Xuân) 56km.</p>
+                                <p>Đường đến đây rất thuận tiện và dễ dàng. Có thể đến bằng xe máy, xe ô tô. Cách sân bay
+                                    Sao Vàng (Thọ Xuân) 56km.</p>
                                 <div class="tbc-separator"></div>
                                 <span class="aci_num">07.</span>
                             </div>
@@ -293,37 +297,39 @@
                 <div class="cards-wrap">
                     <div class="row">
                         @foreach ($services as $key => $service)
-                        <div class="col-lg-4">
-                            <div class="content-inner fl-wrap">
-                                <div class="content-front">
-                                    <div class="cf-inner">
-                                        <div class="fs-wrapper">
-                                            <div class="bg " data-bg="{{ $service->image ? $service->image->path : 'https://placehold.co/600x400' }}"></div>
-                                            <div class="overlay overlay-bold"></div>
-                                        </div>
-                                        <div class="inner">
-                                            <h2>{{ $service->name }}</h2>
-                                            {{-- <h4>{{ $service->description }}</h4> --}}
-                                            <div class="section-separator"><span><i class="fa-thin fa-gem"></i></span>
+                            <div class="col-lg-4">
+                                <div class="content-inner fl-wrap">
+                                    <div class="content-front">
+                                        <div class="cf-inner">
+                                            <div class="fs-wrapper">
+                                                <div class="bg "
+                                                    data-bg="{{ $service->image ? $service->image->path : 'https://placehold.co/600x400' }}">
+                                                </div>
+                                                <div class="overlay overlay-bold"></div>
                                             </div>
+                                            <div class="inner">
+                                                <h2>{{ $service->name }}</h2>
+                                                {{-- <h4>{{ $service->description }}</h4> --}}
+                                                <div class="section-separator"><span><i class="fa-thin fa-gem"></i></span>
+                                                </div>
+                                            </div>
+                                            <div class="serv-num">{{ $key + 1 }}.</div>
                                         </div>
-                                        <div class="serv-num">{{ $key + 1 }}.</div>
                                     </div>
-                                </div>
-                                <div class="content-back">
-                                    <div class="cf-inner">
-                                        <div class="inner">
-                                            <div class="dec-icon">
-                                                {{-- <a href="{{ route('front.getServiceDetail', $service->slug) }}">
+                                    <div class="content-back">
+                                        <div class="cf-inner">
+                                            <div class="inner">
+                                                <div class="dec-icon">
+                                                    {{-- <a href="{{ route('front.getServiceDetail', $service->slug) }}">
                                                     Xem chi tiết
                                                 </a> --}}
+                                                </div>
+                                                <p>{!! $service->description !!}</p>
                                             </div>
-                                            <p>{!! $service->description !!}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         @endforeach
                         <!--card item -->
                     </div>
@@ -360,39 +366,44 @@
                                 <div class="swiper-wrapper">
                                     <!--rooms-carousel-item-->
                                     @foreach ($rooms as $room)
-                                    <div class="swiper-slide">
-                                        <div class="rooms-carousel-item full-height">
-                                            <div class="bg-wrap bg-parallax-wrap-gradien fs-wrapper">
-                                                <div class="bg" data-bg="{{ $room->image ? $room->image->path : 'https://placehold.co/600x400' }}" data-swiper-parallax="10%">
+                                        <div class="swiper-slide">
+                                            <div class="rooms-carousel-item full-height">
+                                                <div class="bg-wrap bg-parallax-wrap-gradien fs-wrapper">
+                                                    <div class="bg"
+                                                        data-bg="{{ $room->image ? $room->image->path : 'https://placehold.co/600x400' }}"
+                                                        data-swiper-parallax="10%">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="rooms-carousel-item_container">
-                                                <h3><a href="">{{ $room->name }}</a> </h3>
-                                                {{-- <p>{!! $room->description !!}</p> --}}
-                                                <div class="room-card-details">
-                                                    <ul>
-                                                        @if ($room->area)
-                                                        <li><i class="fa-light fa-area-chart"></i><span>{{ $room->area }} </span>
-                                                        </li>
-                                                        @endif
-                                                        @if ($room->bedrooms)
-                                                        <li><i class="fa-light fa-bed-front"></i><span>{{ $room->bedrooms }} </span>
-                                                        </li>
-                                                        @endif
-                                                        @if ($room->maximum_occupancy)
-                                                        <li><i class="fa-light fa-user"></i><span>{{ $room->maximum_occupancy }} </span>
-                                                        </li>
-                                                        @endif
-                                                    </ul>
-                                                    {{-- <div class="grid-item_price">
+                                                <div class="rooms-carousel-item_container">
+                                                    <h3><a href="">{{ $room->name }}</a> </h3>
+                                                    {{-- <p>{!! $room->description !!}</p> --}}
+                                                    <div class="room-card-details">
+                                                        <ul>
+                                                            @if ($room->area)
+                                                                <li><i class="fa-light fa-crop"></i><span>{{ $room->area }}
+                                                                    </span>
+                                                                </li>
+                                                            @endif
+                                                            @if ($room->bedrooms)
+                                                                <li><i class="fa-light fa-bed-front"></i><span>{{ $room->bedrooms }}
+                                                                    </span>
+                                                                </li>
+                                                            @endif
+                                                            @if ($room->maximum_occupancy)
+                                                                <li><i class="fa-light fa-user"></i><span>{{ $room->maximum_occupancy }}
+                                                                    </span>
+                                                                </li>
+                                                            @endif
+                                                        </ul>
+                                                        {{-- <div class="grid-item_price">
                                                         <span>{{ number_format($room->price, 0, ',', '.') }} VNĐ/Night</span>
                                                     </div> --}}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            {{-- <div class="like-btn"><i class="fa-light fa-heart"></i> <span>Add to
+                                                {{-- <div class="like-btn"><i class="fa-light fa-heart"></i> <span>Add to
                                                     Wislist</span></div> --}}
+                                            </div>
                                         </div>
-                                    </div>
                                     @endforeach
                                     <!--rooms-carousel-item end-->
                                 </div>
@@ -471,7 +482,7 @@
         <div class="content-section">
             <div class="container  ">
                 <div class="section-title">
-                    <h4>What said about us</h4>
+                    <h4>Đánh giá</h4>
                     <h2>Khách Hàng Nói Gì?</h2>
                     <div class="section-separator"><span><i class="fa-thin fa-gem"></i></span></div>
                 </div>
@@ -484,89 +495,27 @@
                     <div class="swiper-container">
                         <div class="swiper-wrapper">
                             <!--testi-item-->
-                            <div class="swiper-slide">
-                                <div class="testi-item">
-                                    <div class="testi-avatar"><img src="./images/ter1.jpg" alt=""></div>
-                                    <div class="testimonilas-text">
-                                        <div class="testimonilas-text-item">
-                                            <h3>Andy Dimasky</h3>
-                                            <div class="star-rating" data-starrating="5"> </div>
-                                            <p>"World-class hotel
-                                                We were pleasantly surprised by an exception hotel with high-quality
-                                                finishes. The room was super spacious, the bedding was very
-                                                comfortable and the breakfast was amazing. We also had a spa
-                                                experience that I highly recommended. Overall excellent"</p>
-                                            <a href="#" class="testi-link" target="_blank">Hạ Long</a>
+                            @foreach ($reviews as $key => $review)
+                                <div class="swiper-slide">
+                                    <div class="testi-item">
+                                        <div class="testi-avatar"><img
+                                                src="{{ $review->image ? $review->image->path : 'https://placehold.co/600x400' }}"
+                                                alt=""></div>
+                                        <div class="testimonilas-text">
+                                            <div class="testimonilas-text-item">
+                                                <h3>{{ $review->name }}</h3>
+                                                <div class="star-rating" data-starrating="5"> </div>
+                                                <p>{{ $review->message }}</p>
+                                                <a href="#" class="testi-link"
+                                                    target="_blank">{{ $review->position }}</a>
+                                            </div>
+                                            <span
+                                                class="testi-number">{{ $key < 9 ? '0' . ($key + 1) : $key + 1 }}.</span>
+                                            <div class="testi-item-dec fs-wrapper"></div>
                                         </div>
-                                        <span class="testi-number">01.</span>
-                                        <div class="testi-item-dec fs-wrapper"></div>
                                     </div>
                                 </div>
-                            </div>
-                            <!--testi-item end-->
-                            <!--testi-item-->
-                            <div class="swiper-slide">
-                                <div class="testi-item">
-                                    <div class="testi-avatar"><img src="./images/ter2.jpg" alt=""></div>
-                                    <div class="testimonilas-text">
-                                        <div class="testimonilas-text-item">
-                                            <h3>Jannet Dellov</h3>
-                                            <div class="star-rating" data-starrating="4"> </div>
-                                            <p>"Always happy to be back
-                                                Once again we stayed at this great Hotel, as always room was great,
-                                                the breakfast was perfect and the team and service were perfect,
-                                                there is a reason we keep coming back to this Hotel. We feel at
-                                                home. See you all again soon. Highly recommend it to anybody
-                                                visiting Hanoi. Cam on very much ????"</p>
-                                            <a href="#" class="testi-link" target="_blank">Testimonilas</a>
-                                        </div>
-                                        <span class="testi-number">02.</span>
-                                        <div class="testi-item-dec fs-wrapper"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--testi-item end-->
-                            <!--testi-item-->
-                            <div class="swiper-slide">
-                                <div class="testi-item">
-                                    <div class="testi-avatar"><img src="./images/ter3.jpg" alt=""></div>
-                                    <div class="testimonilas-text">
-                                        <div class="testimonilas-text-item">
-                                            <h3>Centa Simpson</h3>
-                                            <div class="star-rating" data-starrating="5"> </div>
-                                            <p>"Always happy to be back
-                                                Once again we stayed at this great Hotel, as always room was great,
-                                                the breakfast was perfect and the team and service were perfect,
-                                                there is a reason we keep coming back to this Hotel. We feel at
-                                                home. See you all again soon. Highly recommend it to anybody
-                                                visiting Hanoi. Cam on very much ????"</p>
-                                            <a href="#" class="testi-link" target="_blank">Testimonilas</a>
-                                        </div>
-                                        <span class="testi-number">03.</span>
-                                        <div class="testi-item-dec fs-wrapper"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--testi-item end-->
-                            <!--testi-item-->
-                            <div class="swiper-slide">
-                                <div class="testi-item">
-                                    <div class="testi-avatar"><img src="./images/ter4.jpg" alt=""></div>
-                                    <div class="testimonilas-text">
-                                        <div class="testimonilas-text-item">
-                                            <h3>Nicolo Svensky</h3>
-                                            <div class="star-rating" data-starrating="5"> </div>
-                                            <p>"Vestibulum orci felis, ullamcorper non condimentum non, ultrices ac
-                                                nunc. Mauris non ligula suscipit, vulputate mi accumsan, dapibus
-                                                felis. Nullam sed sapien dui. Nulla auctor sit amet sem non porta. "
-                                            </p>
-                                            <a href="#" class="testi-link" target="_blank">Testimonilas</a>
-                                        </div>
-                                        <span class="testi-number">04.</span>
-                                        <div class="testi-item-dec fs-wrapper"></div>
-                                    </div>
-                                </div>
-                            </div>
+                            @endforeach
                             <!--testi-item end-->
                         </div>
                     </div>
@@ -581,4 +530,5 @@
     <!--content end-->
 @endsection
 @push('scripts')
+
 @endpush

@@ -3,171 +3,161 @@
     {{ $categoryBlog->name }} - {{ $config->web_title }}
 @endsection
 @section('description')
-    {{ strip_tags(html_entity_decode($config->introduction)) }}
+    {{ strip_tags(html_entity_decode($config->web_des)) }}
 @endsection
 @section('image')
-    {{ @$categoryBlog->image->path ?? '' }}
+    {{ $banners[0]->image ? $banners[0]->image->path : 'https://placehold.co/1920x1080' }}
 @endsection
 
 @section('css')
-
 @endsection
 
 @section('content')
-    <!-- Page Header -->
-    <div class="wptb-page-heading">
-        <div class="wptb-item--inner"
-             style=" background-image:
-                linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-                url('{{ @$categoryBlog->image->path ?? '' }}');
-            background-size: cover;
-            background-position: center;"
-        >
-
-            <div class="wptb-item-layer wptb-item-layer-one">
-                <img src="/site/images/circle.png" alt="img">
-            </div>
-            <h2 class="wptb-item--title ">{{ $categoryBlog->name }}</h2>
-        </div>
-    </div>
-
-    <style>
-        /* 1. Flex container cho hàng và các cột */
-        .wptb-service--inner .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: -15px; /* để cân bằng padding bên trong */
-        }
-        .wptb-service--inner .row > [class*="col-"] {
-            padding: 15px;
-            display: flex;      /* để inner card có thể stretch */
-        }
-
-        /* 2. Card chính stretch đều chiều cao */
-        .wptb-blog-grid1 {
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            flex: 1;            /* chiếm hết cao có thể */
-        }
-
-        /* 3. Ảnh cố định tỉ lệ 16:9, cover, ngang bằng nhau */
-        .wptb-item--image {
-            width: 100%;
-            padding-top: 75%; /* tăng từ 56.25% (16:9) lên 75% (4:3) cho ảnh cao hơn */
-            position: relative;
-            overflow: hidden;
-        }
-        .wptb-item--image img {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-        }
-
-        /* 4. Nội dung bên trong card */
-        .wptb-item--holder {
-            /*display: flex;*/
-            flex-direction: column;
-            padding: 15px;
-            flex: 1;              /* đẩy footer xuống dưới */
-        }
-
-        /* 5. Date style (tuỳ chỉnh nếu cần) */
-        .wptb-item--date {
-            font-size: 0.85rem;
-            color: #999;
-            margin-bottom: 8px;
-        }
-
-        /* 6. Tiêu đề (name) giới hạn 3 dòng với dấu "…" */
-        .wptb-item--title a {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-            text-decoration: none;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        /* 7. Mô tả (description) giới hạn 3 dòng với dấu "…" */
-        .line_3 {
-            font-size: 0.95rem;
-            color: #555;
-            flex: 1;             /* để đẩy button hoặc phần footer nếu có */
-
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* 8. (Tuỳ chọn) Nút hoặc footer nếu có, luôn dính đáy card */
-        .wptb-item--holder .btn {
-            margin-top: 12px;
-            align-self: flex-start;
-        }
-
-        .wptb-blog-grid1 .wptb-item--inner {
-            border: none !important;
-        }
-        /* 9. Khoảng cách responsive */
-        @media (max-width: 991px) {
-            .wptb-service--inner .row > [class*="col-"] {
-                flex: 0 0 50%;
-            }
-        }
-        @media (max-width: 575px) {
-            .wptb-service--inner .row > [class*="col-"] {
-                flex: 0 0 100%;
-            }
-        }
-
-    </style>
-    <section>
+    <div class="content-section parallax-section hero-section hidden-section" data-scrollax-parent="true">
+        <div class="bg par-elem "
+            data-bg="{{ $banners[0]->image ? $banners[0]->image->path : 'https://placehold.co/1920x1080' }}"
+            data-scrollax="properties: { translateY: '30%' }"></div>
+        <div class="overlay"></div>
         <div class="container">
-            <div class="wptb-service--inner">
+            <div class="section-title">
+                {{-- <h4>{{ $categoryBlog->name }}</h4> --}}
+                <h2>{{ $categoryBlog->name }}</h2>
+                <div class="section-separator"><span><i class="fa-thin fa-gem"></i></span></div>
+            </div>
+        </div>
+        <div class="hero-section-scroll">
+            <div class="mousey">
+                <div class="scroller"></div>
+            </div>
+        </div>
+        <div class="dec-corner dc_lb"></div>
+        <div class="dec-corner dc_rb"></div>
+        <div class="dec-corner dc_rt"></div>
+        <div class="dec-corner dc_lt"></div>
+    </div>
+    <!-- section end  -->
+    <!--content-->
+    <div class="content">
+        <!-- breadcrumbs-wrap  -->
+        <div class="breadcrumbs-wrap">
+            <div class="container">
+                <a href="{{ route('front.home-page') }}">Trang chủ</a><span>{{ $categoryBlog->name }}</span>
+            </div>
+        </div>
+        <!--breadcrumbs-wrap end  -->
+        <!-- section   -->
+        <div class="content-section">
+            {{-- <div class="section-dec"></div> --}}
+            <div class="content-dec2 fs-wrapper"></div>
+            <div class="container">
                 <div class="row">
-                    @foreach($blogs as $blog)
-                        <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
-                            <div class="wptb-blog-grid1 highlight wow fadeInLeft">
-                                <div class="wptb-item--inner">
-                                    <div class="wptb-item--image">
-                                        <a href="{{ route('front.blogDetail', $blog->slug) }}" class="wptb-item-link">
-                                            <img src="{{ $blog->image->path ?? '' }}" alt="img">
-                                        </a>
-                                    </div>
-                                    <div class="wptb-item--holder">
-                                        <div class="wptb-item--date">
-                                            {{ \Illuminate\Support\Carbon::parse($blog->created_at)->format('d/m/Y') }}
-                                        </div>
-                                        <h4 class="wptb-item--title">
-                                            <a href="{{ route('front.blogDetail', $blog->slug) }}">{{ $blog->name }}</a>
-                                        </h4>
-                                        <p class="line_3" title="{{ $blog->intro }}">{{ $blog->intro }}</p>
+                    <div class="col-lg-8">
+                        <div class="post-container">
+                            <div class="dec-container">
+                                <div class="text-block">
+                                    <div class="post-items">
+                                        <!-- post-item-->
+                                        @foreach ($blogs as $blog)
+                                            <div class="post-item">
+                                                <div class="post-item_wrap">
+                                                    <div class="post-item_media">
+                                                        <a href="{{ route('front.blogDetail', $blog->slug) }}">
+                                                            <img src="{{ $blog->image ? $blog->image->path : 'https://placehold.co/600x400' }}"
+                                                                alt="">
+                                                        </a>
+                                                    </div>
+                                                    <div class="post-item_content">
+                                                        <h3><a
+                                                                href="{{ route('front.blogDetail', $blog->slug) }}">{{ $blog->name }}</a>
+                                                        </h3>
+                                                        <div class="room-card-details">
+                                                            <ul>
+                                                                <li><i
+                                                                        class="fa-light fa-calendar-days"></i><span>{{ $blog->created_at->format('d/m/Y') }}</span>
+                                                                </li>
+                                                                <li><i class="fa-light fa-user"></i><span>By Admin</span>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <p>{!! $blog->intro !!}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        <!-- post-item end-->
                                     </div>
                                 </div>
                             </div>
+                            <!-- pagination-->
+                            {{ $blogs->links() }}
+                            <!-- pagination end-->
                         </div>
-                    @endforeach
+                    </div>
+                    <div class="col-lg-4">
+                        <!-- main-sidebar -->
+                        <div class="main-sidebar fixed-bar">
+                            <!-- main-sidebar-widget-->
+                            <div class="main-sidebar-widget">
+                                <div class="search-widget">
+                                    <form action="#">
+                                        <input name="se" id="se" type="text" class="search-inpt-item"
+                                            placeholder="Search.." value="Search...">
+                                        <button class="search-submit color-bg" id="submit_btn"><i
+                                                class="fa-light fa-magnifying-glass"></i> </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- main-sidebar-widget end-->
+                            <!-- main-sidebar-widget-->
+                            <div class="main-sidebar-widget">
+                                <h3>Bài viết gần đây</h3>
+                                <div class="recent-post-widget">
+                                    <ul>
+                                        @foreach ($newBlogs as $blog)
+                                            <li>
+                                                <div class="recent-post-img"><a
+                                                        href="{{ route('front.blogDetail', $blog->slug) }}"><img
+                                                            src="{{ $blog->image ? $blog->image->path : 'https://placehold.co/100x100' }}"
+                                                            alt=""></a></div>
+                                                <div class="recent-post-content">
+                                                    <h4><a
+                                                            href="{{ route('front.blogDetail', $blog->slug) }}">{{ $blog->name }}</a>
+                                                    </h4>
+                                                    <div class="recent-post-opt">
+                                                        <span
+                                                            class="post-date">{{ $blog->created_at->format('d/m/Y') }}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- main-sidebar-widget end-->
+                            <!-- main-sidebar-widget-->
+                            <div class="main-sidebar-widget">
+                                <h3>Danh mục</h3>
+                                <div class="category-widget">
+                                    <ul class="cat-item">
+                                        @foreach ($categories as $category)
+                                            <li><a
+                                                    href="{{ route('front.blogs', $category->slug) }}">{{ $category->name }}</a><span>{{ $category->posts->count() }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- main-sidebar-widget end-->
+                        </div>
+                        <!-- main-sidebar end-->
+                    </div>
                 </div>
             </div>
-            <div class="wptb-pagination-wrap text-center">
-
-            </div>
         </div>
-    </section>
-
+        <!-- section end  -->
+    </div>
+    <!--content end-->
 @endsection
 
 @push('scripts')
-
-
 @endpush

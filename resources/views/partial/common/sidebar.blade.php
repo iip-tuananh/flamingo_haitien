@@ -277,6 +277,12 @@
                             <p>Danh mục banner trang chủ</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('gallery.index') }}" class="nav-link {{ Request::routeIs('gallery.index') ? 'active' : '' }}">
+                            <i class="far fas  fa-angle-right nav-icon"></i>
+                            <p>Thư viện ảnh</p>
+                        </a>
+                    </li>
 
                     <li class="nav-item has-treeview">
                         <a href="{{ route('Review.index') }}" class="nav-link {{ Request::routeIs('Review.index') ? 'active' : '' }}">

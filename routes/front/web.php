@@ -2,12 +2,11 @@
 Route::group(['namespace' => 'Front'], function () {
     Route::get('/','FrontController@homePage')->name('front.home-page');
     Route::get('/ve-chung-toi.html','FrontController@abouts')->name('front.abouts');
-    Route::get('/ve-chung-toi','FrontController@about_page')->name('front.about_page');
-    Route::get('/loai-phong/{slug}','FrontController@getRoom')->name('front.getRoom');
-    Route::get('/dich-vu/{slug?}','FrontController@services')->name('front.services');
-    Route::get('/chi-tiet-tien-ich/{slug}','FrontController@getServiceDetail')->name('front.getServiceDetail');
-    Route::get('/tin-tuc/{slug?}','FrontController@blogs')->name('front.blogs');
-    Route::get('/chi-tiet-tin-tuc/{slug}','FrontController@blogDetail')->name('front.blogDetail');
+    Route::get('/loai-phong/{slug}.html','FrontController@getRoom')->name('front.getRoom');
+    Route::get('/tien-ich.html','FrontController@services')->name('front.services');
+    Route::get('/chi-tiet-tien-ich/{slug}.html','FrontController@getServiceDetail')->name('front.getServiceDetail');
+    Route::get('/tin-tuc/{slug?}.html','FrontController@blogs')->name('front.blogs');
+    Route::get('/chi-tiet-tin-tuc/{slug}.html','FrontController@blogDetail')->name('front.blogDetail');
     Route::get('/lien-he.html','FrontController@contact')->name('front.contact-us');
     Route::post('/postContact','FrontController@postContact')->name('front.submitContact');
 

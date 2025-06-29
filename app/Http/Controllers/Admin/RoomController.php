@@ -96,9 +96,9 @@ class RoomController extends Controller
             $object->name = $request->name;
             $object->area = $request->area;
             $object->view = $request->view;
-            $object->bedrooms = $request->bedrooms;
+            $object->bedrooms = $request->bedrooms ?? null;
             $object->description = $request->description;
-            $object->price = $request->price;
+            $object->price = $request->price ?? null;
             $object->maximum_occupancy = $request->maximum_occupancy;
             $object->status = $request->status;
 
@@ -153,9 +153,9 @@ class RoomController extends Controller
             $object->area_eng = $request->area_eng;
             $object->view = $request->view;
             $object->view_eng = $request->view_eng;
-            $object->bedrooms = $request->bedrooms;
-            $object->price = $request->price;
-            $object->bedrooms_eng = $request->bedrooms_eng;
+            $object->bedrooms = $request->bedrooms ?? null;
+            $object->price = $request->price ?? null;
+            $object->bedrooms_eng = $request->bedrooms_eng ?? null;
             $object->description = $request->description;
             $object->description_eng = $request->description_eng;
             $object->highlight = $request->highlight;

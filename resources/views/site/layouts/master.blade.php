@@ -6,9 +6,38 @@
     <link type="text/css" rel="stylesheet" href="/site/css/plugins.css">
     <link type="text/css" rel="stylesheet" href="/site/css/style.css">
     <link type="text/css" rel="stylesheet" href="/site/css/callbutton.css">
+    <link rel="stylesheet" href="/site/css/jquery.magnific-popup.css" />
+
+    <script src="/site/js/jquery.min.js"></script>
+
+    @yield('css')
+
+    <!-- Angular Js -->
+    <script src="{{ asset('libs/angularjs/angular.js?v=222222') }}"></script>
+    <script src="{{ asset('libs/angularjs/angular-resource.js') }}"></script>
+    <script src="{{ asset('libs/angularjs/sortable.js') }}"></script>
+    <script src="{{ asset('libs/dnd/dnd.min.js') }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular-sanitize.js"></script>
+    <script src="{{ asset('libs/angularjs/select.js') }}"></script>
+    <script src="{{ asset('js/angular.js') }}?version={{ env('APP_VERSION', '1') }}"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+    @stack('scripts')
+    <script>
+        app.controller('AppController', function($rootScope, $scope, $interval, $compile) {
+        })
+
+        @if (Session::has('token'))
+            localStorage.setItem('{{ env('prefix') }}-token', "{{ Session::get('token') }}")
+        @endif
+        @if (Session::has('logout'))
+            localStorage.removeItem('{{ env('prefix') }}-token');
+        @endif
+        var CSRF_TOKEN = "{{ csrf_token() }}";
+    </script>
 </head>
 
-<body>
+<body ng-app="App" ng-controller="AppController">
     <!-- lodaer  -->
     <div class="loader-wrap">
         <div class="loader-item">
@@ -63,10 +92,22 @@
     </div>
     <!-- Main end -->
     <!--=============== scripts  ===============-->
-    <script src="/site/js/jquery.min.js"></script>
     <script src="/site/js/plugins.js"></script>
     <script src="/site/js/scripts.js"></script>
     <script src="/site/js/callbutton.js"></script>
+    <script src="/site/js/jquery.magnific-popup.min.js"></script>
+    <script>
+        if ($(".video-popup").length) {
+            $(".video-popup").magnificPopup({
+                type: "iframe",
+                mainClass: "mfp-fade",
+                removalDelay: 160,
+                preloader: true,
+
+                fixedContentPos: false
+            });
+        }
+    </script>
 </body>
 
 </html>

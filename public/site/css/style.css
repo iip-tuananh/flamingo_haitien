@@ -2852,7 +2852,7 @@ quantity , .quantity_title {
 }
 .recent-post-img {
 	float:left;
-	width:140px;
+	width: 24%;
 	padding: 10px;
 	border-right: 1px solid #eee;
 }
@@ -2864,7 +2864,8 @@ quantity , .quantity_title {
 }
 .recent-post-content {
  	float: left;
-	padding: 20px 0 0 30px;
+ 	padding: 20px 0 0 30px;
+ 	width: 76%;
 }
 .recent-post-content h4 {
   	font-family: var(--secondary-font);
@@ -5151,9 +5152,9 @@ quantity , .quantity_title {
 }
 .boxed-container-wrap {
 	float: left;
-    position: relative;
- 	padding: 70px 0;
-    width: 100%;
+	position: relative;
+	padding: 144px 0;
+	width: 100%;
 }
 .boxed-container-wrap .promo-video {
 	position: relative;

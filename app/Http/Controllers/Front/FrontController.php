@@ -66,7 +66,8 @@ class FrontController extends Controller
         $this->categoryService = $categoryService;
     }
 
-    public function homePage() {
+    public function homePage()
+    {
         $data['config'] = Config::getDataForEdit(1);
         $data['banners'] = Banner::query()->with(['image'])->latest()->get();
         $data['rooms'] = Room::with(['image', 'image_back', 'galleries.image'])
@@ -79,29 +80,36 @@ class FrontController extends Controller
             ->latest()->get();
         $data['blogs'] = Post::query()->with('image')
             ->where('status', 1)->latest()->get();
-        $data['aboutUs'] = About::query()->with(['image', 'image_front', 'image_back'])->first();
+        $data['aboutUs'] = About::query()->with(['image', 'image_front', 'image_back', 'video_image'])->first();
 
         return view('site.home', $data);
     }
 
-    public function getRoom($slug) {
+    public function getRoom($slug)
+    {
         $data['room'] = Room::with(['image', 'image_back', 'galleries.image'])
             ->where('slug', $slug)->first();
-        $data['otherRooms'] = Room::with(['image', 'image_back', 'galleries.image'])
-            ->whereNotIn('id', [$data['room']->id])
+        $data['rooms'] = Room::with(['image'])
             ->where('status', 1)
+            ->whereNotIn('id', [$data['room']->id])
             ->latest()->get();
 
         return view('site.room_detail', $data);
     }
 
-    public function abouts(Request $request) {
+    public function abouts(Request $request)
+    {
         $config = Config::query()->first();
+        $banners = Banner::query()->with(['image'])->latest()->get();
+        $aboutUs = About::query()->with(['image', 'image_front', 'image_back'])->first();
+        $reviews = Review::query()->with('image')->latest()->get();
+        $galleries = Gallery::query()->with('image')->latest()->get();
 
-        return view('site.about_us', compact('config'));
+        return view('site.about_us', compact('config', 'aboutUs', 'reviews', 'galleries'));
     }
 
-    public function about_page(Request $request, $slug) {
+    public function about_page(Request $request, $slug)
+    {
         $category = PostCategory::findBySlug($slug);
         $post = Post::query()->with('image')->where('cate_id', $category->id)
             ->where('status', 1)
@@ -110,49 +118,74 @@ class FrontController extends Controller
         return view('site.about_page', compact('post', 'category'));
     }
 
-    public function services(Request $request, $slug = null) {
-       $categoryService = PostCategory::query()->with('image')->where('slug', $slug)->first();
-       $services = Service::query()->with('image')->where('cate_id', $categoryService->id)
-           ->where('status', 1)
-           ->latest()->get();
+    public function services(Request $request, $slug = null)
+    {
+        $services = Service::query()->with('image')->select(['id', 'name', 'slug', 'description', 'content'])->paginate(6);
+        $banners = Banner::query()->with(['image'])->latest()->get();
 
-       return view('site.services', compact('categoryService', 'services'));
+        return view('site.services', compact('services', 'banners'));
     }
 
-    public function getServiceDetail(Request $request, $slug) {
+    public function getServiceDetail(Request $request, $slug)
+    {
         $service = Service::query()->with('image')->where('slug', $slug)->first();
         $otherServices = Service::query()->whereNotIn('id', [$service->id])
             ->where('status', 1)
-            ->latest()->get();
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
 
         return view('site.service_detail', compact('service', 'otherServices'));
     }
 
-    public function blogs(Request $request, $slug = null) {
+    public function blogs(Request $request, $slug = null)
+    {
         $categoryBlog = PostCategory::query()->with('image')->where('slug', $slug)->first();
         $blogs = Post::query()->with('image')
             ->where('status', 1)
-            ->where('cate_id', $categoryBlog->id)->latest()->get();
+            ->where('cate_id', $categoryBlog->id)
+            ->orderBy('created_at', 'desc')
+            ->select(['id', 'name', 'slug', 'created_at', 'intro'])
+            ->paginate(6);
+        $categories = PostCategory::with([
+            'posts' => function ($query) {
+                $query->where(['status' => 1])->get();
+            }
+        ])->where(['parent_id' => 0, 'show_home_page' => 1])->latest()->get();
+        $newBlogs = Post::with(['image'])->where(['status' => 1])
+            ->orderBy('id', 'DESC')
+            ->select(['id', 'name', 'slug', 'created_at'])
+            ->limit(6)->get();
 
-        return view('site.blog', compact('blogs', 'categoryBlog'));
+        return view('site.blog', compact('blogs', 'categoryBlog', 'categories', 'newBlogs'));
     }
 
-    public function blogDetail(Request $request, $slug) {
+    public function blogDetail(Request $request, $slug)
+    {
         $blog = Post::query()->with('image')->where('slug', $slug)->first();
         $otherBlogs = Post::query()->whereNotIn('id', [$blog->id])
             ->where('status', 1)
-            ->latest()->get();
+            ->where('cate_id', $blog->cate_id)
+            ->orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get();
         $categoryBlog = PostCategory::query()->with('image')->where('id', $blog->cate_id)->first();
+        $categories = PostCategory::with([
+            'posts' => function ($query) {
+                $query->where(['status' => 1])->get();
+            }
+        ])->where(['parent_id' => 0, 'show_home_page' => 1])->latest()->get();
 
-        return view('site.blog_detail', compact('blog', 'otherBlogs', 'categoryBlog'));
+        return view('site.blog_detail', compact('blog', 'otherBlogs', 'categoryBlog', 'categories'));
     }
 
-    public function roomCategory(Request $request) {
+    public function roomCategory(Request $request)
+    {
         $rooms = Room::query()->with(['galleries' => function ($q) {
-                    $q->select(['id', 'room_id', 'sort'])
-                        ->with(['image'])
-                        ->orderBy('sort', 'ASC');
-                }])->where('status', Room::XUAT_BAN)->get();
+            $q->select(['id', 'room_id', 'sort'])
+                ->with(['image'])
+                ->orderBy('sort', 'ASC');
+        }])->where('status', Room::XUAT_BAN)->get();
 
         $locale = LaravelLocalization::getCurrentLocale();
 
@@ -172,7 +205,8 @@ class FrontController extends Controller
         return view('site.hang_phong', compact('rooms'));
     }
 
-    public function cuisine(Request $request, $slug) {
+    public function cuisine(Request $request, $slug)
+    {
         $categoryPost = PostCategory::findBySlug($slug);
         $post = Post::query()->with(['image', 'blocks.galleries.image'])
             ->where('cate_id', $categoryPost->id)
@@ -190,50 +224,23 @@ class FrontController extends Controller
 
         return view('site.am_thuc', compact('post'));
     }
-    public function spa(Request $request) {
-        $spa = Spa::query()->with(['blocks.galleries.image'])->find(1);
-        $servicesSpa = ServiceSpa::query()->with('image')->get();
-        $experienceSpa = Experience::query()->with(['galleries.image', 'image'])->get();
+    public function spa(Request $request)
+    {
+        $services = Service::query()->with('image')->select(['id', 'name', 'slug', 'description', 'content'])->paginate(6);
+        $banners = Banner::query()->with(['image'])->latest()->get();
 
-        $locale = LaravelLocalization::getCurrentLocale();
-        if($locale == 'en') {
-            $spa->title = $spa->title_eng;
-            $spa->intro = $spa->intro_eng;
-            $spa->body = $spa->body_eng;
-
-            $servicesSpa = $servicesSpa->map(function ($service) {
-                $service->name = $service->name_eng;
-                $service->body = $service->body_eng;
-
-                return $service;
-            });
-
-            $experienceSpa = $experienceSpa->map(function ($ser) {
-                $ser->name = $ser->name_eng;
-                $ser->body = $ser->body_eng;
-
-                return $ser;
-            });
-        }
-
-        if ($locale === 'en' && $spa && $spa->blocks) {
-            foreach ($spa->blocks as $block) {
-                $block->title = $block->title_eng;
-                $block->body  = $block->body_eng;
-            }
-        }
-
-        return view('site.spa', compact('spa', 'servicesSpa', 'experienceSpa'));
+        return view('site.spa', compact('services', 'banners'));
     }
 
-    public function getDataExperience(Request $request, $id) {
+    public function getDataExperience(Request $request, $id)
+    {
         $json = new \stdClass();
         $json->success = true;
         $data = Experience::getDataForEdit($id);
 
         $locale = LaravelLocalization::getCurrentLocale();
 
-        if($locale == 'en') {
+        if ($locale == 'en') {
             $data->name = $data->name_eng;
             $data->body = $data->body_eng;
         }
@@ -261,7 +268,8 @@ class FrontController extends Controller
         return view('site.cloud_pool', compact('data'));
     }
 
-    public function promotionService() {
+    public function promotionService()
+    {
         $service_type = ServiceType::query()->where('type', ServiceType::UU_DAI);
         $service_type_ids = $service_type->pluck('id')->toArray();
         $service_types = $service_type->get();
@@ -269,7 +277,7 @@ class FrontController extends Controller
 
         $locale = LaravelLocalization::getCurrentLocale();
 
-        if($locale == 'en') {
+        if ($locale == 'en') {
             $service_types = $service_types->map(function ($ser) {
                 $ser->name = $ser->name_eng;
                 return $ser;
@@ -286,7 +294,8 @@ class FrontController extends Controller
         return view('site.uu_dai', compact('listService', 'service_types'));
     }
 
-    public function experienceService() {
+    public function experienceService()
+    {
         $service_type = ServiceType::query()->where('type', ServiceType::TRAI_NGHIEM);
         $service_type_ids = $service_type->pluck('id')->toArray();
         $service_types = $service_type->get();
@@ -294,7 +303,7 @@ class FrontController extends Controller
         $locale = LaravelLocalization::getCurrentLocale();
         $listService = Service::query()->with(['image', 'galleries.image'])->whereIn('service_type_id', $service_type_ids)->get();
 
-        if($locale == 'en') {
+        if ($locale == 'en') {
             $service_types = $service_types->map(function ($ser) {
                 $ser->name = $ser->name_eng;
                 return $ser;
@@ -311,7 +320,8 @@ class FrontController extends Controller
         return view('site.trai_nghiem', compact('listService', 'service_types'));
     }
 
-    public function resortService() {
+    public function resortService()
+    {
         $service_type = ServiceType::query()->where('type', ServiceType::GOI_NGHI_DUONG);
         $service_type_ids = $service_type->pluck('id')->toArray();
         $service_types = $service_type->get();
@@ -319,7 +329,7 @@ class FrontController extends Controller
 
         $locale = LaravelLocalization::getCurrentLocale();
 
-        if($locale == 'en') {
+        if ($locale == 'en') {
             $service_types = $service_types->map(function ($serv) {
                 $serv->name = $serv->name_eng;
                 return $serv;
@@ -336,12 +346,13 @@ class FrontController extends Controller
         return view('site.goi_dich_vu', compact('listService', 'service_types'));
     }
 
-    public function detailResortService($slug) {
+    public function detailResortService($slug)
+    {
         $service = Service::query()->with(['image', 'galleries.image'])->where('slug', $slug)->first();
 
         $locale = LaravelLocalization::getCurrentLocale();
 
-        if($locale == 'en') {
+        if ($locale == 'en') {
             $service->name = $service->name_eng;
             $service->content = $service->content_eng;
         }
@@ -349,17 +360,20 @@ class FrontController extends Controller
         return view('site.chi_tiet_goi_dich_vu', compact('service'));
     }
 
-    public function questionQA() {
+    public function questionQA()
+    {
         $topics = Topic::query()->with(['questions'])->latest()->get();
 
         return view('site.cau_hoi', compact('topics'));
     }
 
-    public function bookingRoom() {
+    public function bookingRoom()
+    {
         return view('site.booking');
     }
 
-    public function getServiceTab(Request $request) {
+    public function getServiceTab(Request $request)
+    {
         $type = $request->get('type');
         $slug = $request->get('slug');
         if ($slug == 'all') {
@@ -371,7 +385,7 @@ class FrontController extends Controller
 
         $locale = LaravelLocalization::getCurrentLocale();
 
-        if($locale == 'en') {
+        if ($locale == 'en') {
             $listService = $listService->map(function ($ser) {
                 $ser->name = $ser->name_eng;
                 $ser->description = $ser->description_eng;
@@ -383,7 +397,8 @@ class FrontController extends Controller
         return Response::json(['success' => true, 'data' => $listService]);
     }
 
-    public function searchTour(Request $request) {
+    public function searchTour(Request $request)
+    {
         $departure = $request->query('departure');
         $destination = $request->query('destination');
         $tourName  = $request->query('tourName');
@@ -399,7 +414,7 @@ class FrontController extends Controller
         }
 
         if (!empty($tourName)) {
-            $query->orWhere(function($q) use ($tourName) {
+            $query->orWhere(function ($q) use ($tourName) {
                 $q->where('title', 'like', '%' . $tourName . '%')
                     ->orWhere('title_short', 'like', '%' . $tourName . '%');
             });
@@ -410,7 +425,8 @@ class FrontController extends Controller
         return view('site.tours.result_search', ['results' => $results]);
     }
 
-    public function tourDetail(Request $request, $slug) {
+    public function tourDetail(Request $request, $slug)
+    {
         $tour = Tour::with(['image', 'category.image', 'category.parent.image'])->where('slug', $slug)->first();
         $tourSuggest = Tour::query()->with(['image'])
             ->where('cate_id', $tour->cate_id)
@@ -421,10 +437,11 @@ class FrontController extends Controller
         return view('site.tours.tour_detail', compact('tour', 'tourSuggest', 'config'));
     }
 
-    public function bookingTour(Request $request, $slug = null) {
+    public function bookingTour(Request $request, $slug = null)
+    {
         $tours = Tour::query()->where('status', Tour::XUAT_BAN)->latest()->get();
         $tour = null;
-        if($slug) {
+        if ($slug) {
             $tour = Tour::findBySlug($slug);
         }
 
@@ -495,10 +512,10 @@ class FrontController extends Controller
             DB::rollBack();
             dd($exception->getMessage());
         }
-
     }
 
-    public function getInfoTour(Request $request, $id) {
+    public function getInfoTour(Request $request, $id)
+    {
         $tour = Tour::with('image')->find($id);
         $json = new \stdClass();
         $json->success = true;
@@ -508,12 +525,13 @@ class FrontController extends Controller
         return Response::json($json);
     }
 
-    public function aboutUs(Request $request) {
+    public function aboutUs(Request $request)
+    {
         $banners = Banner::query()->with('image')->latest()->get();
         $config = Config::query()->first();
-        $newBlogs = Post::with(['image'])->where(['status'=>1])
-            ->orderBy('id','DESC')
-            ->select(['id','name','slug'])
+        $newBlogs = Post::with(['image'])->where(['status' => 1])
+            ->orderBy('id', 'DESC')
+            ->select(['id', 'name', 'slug'])
             ->limit(6)->get();
 
         return view('site.about_us', compact('config', 'banners', 'newBlogs'));
@@ -525,10 +543,10 @@ class FrontController extends Controller
         $category = CategorySpecial::findBySlug($request->handle);
         $products = $category->products()->with([
             'image', 'galleries',
-            'product_rates' => function($q) {
+            'product_rates' => function ($q) {
                 $q->where('status', 2);
             }
-            ])->where('status', 1)->limit(10)->orderBy('created_at', 'desc')->get();
+        ])->where('status', 1)->limit(10)->orderBy('created_at', 'desc')->get();
         $html = '';
         foreach ($products as $product) {
             $html .= view('site.partials.item_product', compact('product', 'category'))->render();
@@ -552,7 +570,7 @@ class FrontController extends Controller
         $product->product_rates = $product->product_rates;
         $attributes = [];
         foreach ($product->attributeValues as $attribute) {
-            if(!isset($attributes[$attribute->id])) {
+            if (!isset($attributes[$attribute->id])) {
                 $attributes[$attribute->id] = [
                     'name' => $attribute->name,
                     'values' => [$attribute->pivot->value]
@@ -567,16 +585,16 @@ class FrontController extends Controller
         return Response::json([
             'data' => $product,
         ]);
-
     }
 
-    public function showProductDetail($slug) {
+    public function showProductDetail($slug)
+    {
         try {
             $categories = Category::getAllCategory();
             $product = Product::findSlug($slug);
             $attributes = [];
             foreach ($product->attributeValues as $attribute) {
-                if(!isset($attributes[$attribute->id])) {
+                if (!isset($attributes[$attribute->id])) {
                     $attributes[$attribute->id] = [
                         'name' => $attribute->name,
                         'values' => [$attribute->pivot->value]
@@ -600,7 +618,7 @@ class FrontController extends Controller
             }
 
             return view('site.products.product_detail', compact('categories', 'product', 'productsRelated', 'category', 'arr_product_rate_images'));
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return view('site.errors');
             Log::error($exception);
         }
@@ -612,7 +630,7 @@ class FrontController extends Controller
         $categories = Category::parent()->with('products')->orderBy('sort_order')->get();
         $category = Category::findBySlug($categorySlug);
         $sort = $request->get('sort') ?: 'lasted';
-        if($category) {
+        if ($category) {
             $category_parent_id = $category->parent ? $category->parent->id : null;
             $arr_category_id = array_merge($category->childs->pluck('id')->toArray(), [$category->id, $category_parent_id]);
 
@@ -622,16 +640,18 @@ class FrontController extends Controller
             $products = $category->products()->where('status', 1)->orderBy('created_at', 'desc')->paginate(12);
         }
 
-        $categorySpecial = CategorySpecial::query()->with(['products' => function($q) {$q->where('status', 1)->limit(5);}])
+        $categorySpecial = CategorySpecial::query()->with(['products' => function ($q) {
+            $q->where('status', 1)->limit(5);
+        }])
             ->has('products')
-            ->where('type',10)
+            ->where('type', 10)
             ->where('show_home_page', 1)
             ->orderBy('order_number')->get();
 
         $title = $category->name;
         $short_des = $category->short_des;
         $title_sub = $category->name;
-        if(! $category) {
+        if (!$category) {
             return view('site.errors');
         }
 
@@ -653,12 +673,12 @@ class FrontController extends Controller
                 $products->orderBy('price', 'desc');
             }
         } else {
-             $products->orderBy('created_at', 'desc');
+            $products->orderBy('created_at', 'desc');
         }
 
         $product_all_ids = $category->products()->pluck('id')->toArray();
 
-        if( $request->product_ids_load_more) {
+        if ($request->product_ids_load_more) {
             $products->whereIn('id', array_diff($product_all_ids, $request->product_ids_load_more));
         }
 
@@ -673,10 +693,10 @@ class FrontController extends Controller
 
         $hasProductsNextPage = false;
 
-        if($product_ids && Product::query()->whereNotIn('id', $product_ids_)->count()) $hasProductsNextPage = true;
+        if ($product_ids && Product::query()->whereNotIn('id', $product_ids_)->count()) $hasProductsNextPage = true;
 
         foreach ($products as $product) {
-            $html .= view( 'site.partials.card_product', compact('product', 'category'))->render();
+            $html .= view('site.partials.card_product', compact('product', 'category'))->render();
         }
 
 
@@ -685,7 +705,6 @@ class FrontController extends Controller
             'product_ids' => $product_ids,
             'hasProductsNextPage' => $hasProductsNextPage,
         ]);
-
     }
 
 
@@ -695,7 +714,8 @@ class FrontController extends Controller
         return view('site.lien_he');
     }
 
-    public function contact(Request $request) {
+    public function contact(Request $request)
+    {
         $config = Config::query()->find(1);
 
         return view('site.contact_us', compact('config'));
@@ -706,7 +726,8 @@ class FrontController extends Controller
         $rule  =  [
             'name'  => 'required',
             'message'  => 'required',
-            'phone' => 'required|regex:/^(0)[0-9]{9,11}$/',
+            'email' => 'required|email|max:255|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+            'phone' => 'nullable|regex:/^(0)[0-9]{9,11}$/',
         ];
 
         $validate = Validator::make(
@@ -717,6 +738,10 @@ class FrontController extends Controller
                 'phone.required' => 'Vui lòng nhập số điện thoại',
                 'phone.regex' => 'Số điện thoại không đúng định dạng',
                 'message.required' => 'Vui lòng nhập nội dung liên hệ',
+                'email.required' => 'Vui lòng nhập email',
+                'email.email' => 'Email không đúng định dạng',
+                'email.max' => 'Email không được vượt quá 255 ký tự',
+                'email.regex' => 'Email không đúng định dạng',
             ]
         );
 
@@ -738,20 +763,20 @@ class FrontController extends Controller
     public function listBlog(Request $request, $slug)
     {
         $category = PostCategory::where('slug', $slug)->first();
-        $data['blogs'] = Post::with(['image'])->where(['status'=>1,'cate_id'=>$category->id])
-            ->orderBy('id','DESC')
-            ->select(['id','name','intro','created_at','slug', 'cate_id'])
+        $data['blogs'] = Post::with(['image'])->where(['status' => 1, 'cate_id' => $category->id])
+            ->orderBy('id', 'DESC')
+            ->select(['id', 'name', 'intro', 'created_at', 'slug', 'cate_id'])
             ->paginate(12);
 
         $data['cate_title'] = $category->name;
         $data['categories'] = PostCategory::with([
-            'posts' => function ($query){
-                $query->where(['status'=>1])->get();
+            'posts' => function ($query) {
+                $query->where(['status' => 1])->get();
             }
         ])->where(['parent_id' => 0, 'show_home_page' => 1])->latest()->get();
-        $data['newBlogs'] = Post::with(['image'])->where(['status'=>1])
-            ->orderBy('id','DESC')
-            ->select(['id','name','slug'])
+        $data['newBlogs'] = Post::with(['image'])->where(['status' => 1])
+            ->orderBy('id', 'DESC')
+            ->select(['id', 'name', 'slug'])
             ->limit(6)->get();
 
         return view('site.blogs.list', $data);
@@ -760,29 +785,29 @@ class FrontController extends Controller
     public function indexBlog(Request $request, $slug = null)
     {
         $banners = Banner::query()->with('image')->latest()->get();
-        $data['newBlogs'] = Post::with(['image'])->where(['status'=>1])
-            ->orderBy('id','DESC')
-            ->select(['id','name','slug'])
+        $data['newBlogs'] = Post::with(['image'])->where(['status' => 1])
+            ->orderBy('id', 'DESC')
+            ->select(['id', 'name', 'slug'])
             ->limit(5)->get();
         $category = null;
-        if($slug) {
+        if ($slug) {
             $category = PostCategory::findBySlug($slug);
 
-            $data['blogs'] = Post::with(['image', 'category'])->where(['status'=>1])
+            $data['blogs'] = Post::with(['image', 'category'])->where(['status' => 1])
                 ->where('cate_id', $category->id)
-                ->orderBy('id','DESC')
-                ->select(['id','name','intro','created_at','slug'])
+                ->orderBy('id', 'DESC')
+                ->select(['id', 'name', 'intro', 'created_at', 'slug'])
                 ->paginate(10);
         } else {
-            $data['blogs'] = Post::with(['image', 'category'])->where(['status'=>1])
-                ->orderBy('id','DESC')
-                ->select(['id','name','intro','created_at','slug'])
+            $data['blogs'] = Post::with(['image', 'category'])->where(['status' => 1])
+                ->orderBy('id', 'DESC')
+                ->select(['id', 'name', 'intro', 'created_at', 'slug'])
                 ->paginate(10);
 
             $data['cate_title'] = 'Tin tức';
             $data['categories'] = PostCategory::with([
-                'posts' => function ($query){
-                    $query->where(['status'=>1])->get();
+                'posts' => function ($query) {
+                    $query->where(['status' => 1])->get();
                 }
             ])->where(['parent_id' => 0, 'show_home_page' => 1])->latest()->get();
         }
@@ -797,27 +822,27 @@ class FrontController extends Controller
         $blog = Post::with(['image', 'user_create'])->where('slug', $slug)->first();
         $category = PostCategory::where('id', $blog->cate_id)->first();
 
-        $data['other_blogs'] = Post::with(['image'])->where(['status'=>1,'cate_id'=>$blog->cate_id])
-        ->where('id', '!=', $blog->id)
-        ->select(['id','name','intro','created_at','slug'])
-        ->limit(6)->inRandomOrder()->get();
+        $data['other_blogs'] = Post::with(['image'])->where(['status' => 1, 'cate_id' => $blog->cate_id])
+            ->where('id', '!=', $blog->id)
+            ->select(['id', 'name', 'intro', 'created_at', 'slug'])
+            ->limit(6)->inRandomOrder()->get();
 
-        $data['newBlogs'] = Post::with(['image'])->where(['status'=>1])
-            ->orderBy('id','DESC')
-            ->select(['id','name','slug'])
+        $data['newBlogs'] = Post::with(['image'])->where(['status' => 1])
+            ->orderBy('id', 'DESC')
+            ->select(['id', 'name', 'slug'])
             ->limit(5)->get();
 
         $data['blog_title'] = $blog->name;
         $data['blog_des'] = $blog->intro;
         $data['categories'] = PostCategory::with([
-            'posts' => function ($query){
-                $query->where(['status'=>1])->get();
+            'posts' => function ($query) {
+                $query->where(['status' => 1])->get();
             }
         ])->where(['parent_id' => 0, 'show_home_page' => 1])->latest()->get();
-        $data['newBlogs'] = Post::with(['image'])->where(['status'=>1])
-        ->orderBy('id','DESC')
-        ->select(['id','name','slug'])
-        ->limit(6)->get();
+        $data['newBlogs'] = Post::with(['image'])->where(['status' => 1])
+            ->orderBy('id', 'DESC')
+            ->select(['id', 'name', 'slug'])
+            ->limit(6)->get();
         $data['blog'] = $blog;
         $data['cate_title'] = $category->name;
         $data['category'] = $category;
@@ -825,26 +850,30 @@ class FrontController extends Controller
         return view('site.blogs.detail', compact('data', 'banners'));
     }
 
-    public function policy(Request $request) {
+    public function policy(Request $request)
+    {
         $policy = PolivicyDetail::query()->get();
 
         return view('site.chinh_sach_bao_mat', compact('policy'));
     }
 
-    public function terms(Request $request) {
+    public function terms(Request $request)
+    {
         $term = Term::query()->with(['details'])->find(1);
 
         return view('site.dieu_khoan', compact('term'));
     }
 
 
-    public function moving(Request $request) {
+    public function moving(Request $request)
+    {
         $moving = Moving::find(1);
 
         return view('site.moving', compact('moving'));
     }
 
-    public function media(Request $request, $id = null) {
+    public function media(Request $request, $id = null)
+    {
         $medias = Document::query()->with(['videos'])->get();
         $allImages = File::query()->where('model_type', DocumentGallery::class)->get();
         $media = Document::query()->with('galleries.image')->find($id);
@@ -854,7 +883,8 @@ class FrontController extends Controller
         return view('site.tu_lieu_truyen_thong', compact('medias', 'media', 'allImages', 'videos', 'config'));
     }
 
-    public function getDataMedia(Request $request, $id) {
+    public function getDataMedia(Request $request, $id)
+    {
         $media = Document::query()->with('galleries')->find($id);
 
         $json = new \stdClass();
@@ -869,38 +899,41 @@ class FrontController extends Controller
     public function autoSearchComplete(Request $request)
     {
         if (isset($request->keyword)) {
-            $products = Product::with(['image'])->where('name','LIKE','%'.$request->keyword.'%')->where('status', 1)->orderBy('id','DESC')->limit(10)->get();
-            $view = view("site.partials.ajax_search_results",compact('products'))->render();
+            $products = Product::with(['image'])->where('name', 'LIKE', '%' . $request->keyword . '%')->where('status', 1)->orderBy('id', 'DESC')->limit(10)->get();
+            $view = view("site.partials.ajax_search_results", compact('products'))->render();
         } else {
             $view = '';
         }
 
         return Response::json([
-            'html'=>$view
+            'html' => $view
         ]);
     }
 
-    public function resetData() {
+    public function resetData()
+    {
         \Illuminate\Support\Facades\DB::table('orders')->truncate();
         \Illuminate\Support\Facades\DB::table('contacts')->truncate();
     }
 
     // laster buy products
-    public function lasterBuyProducts() {
+    public function lasterBuyProducts()
+    {
         $product = \DB::table('products')
-        ->where('status', 1)
-        ->leftJoin('files', function($join) {
-            $join->on('files.model_id', '=', 'products.id')
-            ->where('files.custom_field', 'image')->where('files.model_type', Product::class);
-        })
-        ->inRandomOrder()->first(['products.id', 'products.name', 'products.slug', 'files.path']);
+            ->where('status', 1)
+            ->leftJoin('files', function ($join) {
+                $join->on('files.model_id', '=', 'products.id')
+                    ->where('files.custom_field', 'image')->where('files.model_type', Product::class);
+            })
+            ->inRandomOrder()->first(['products.id', 'products.name', 'products.slug', 'files.path']);
         return Response::json([
             'product' => $product,
         ]);
     }
 
     // review
-    public function submitReview(Request $request) {
+    public function submitReview(Request $request)
+    {
         $rule  =  [
             'name' => 'required',
             'email'  => 'required|email|max:255|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
@@ -955,36 +988,38 @@ class FrontController extends Controller
             'desc' => $request->desc,
         ];
 
-		DB::beginTransaction();
-		try {
-			$object = new ProductRate();
-			$object->fill($store_data);
-			$object->save();
+        DB::beginTransaction();
+        try {
+            $object = new ProductRate();
+            $object->fill($store_data);
+            $object->save();
 
             $galleries = $request->galleries;
-			foreach ($galleries as $gallery) {
+            foreach ($galleries as $gallery) {
                 if (isset($gallery['image'])) {
                     $file = $gallery['image'];
                     FileHelper::uploadFile($file, 'product_rate', $object->id, ProductRate::class, 'image', 1);
                 }
             }
 
-			DB::commit();
-			return $this->responseSuccess('Gửi đánh giá thành công!');
-		} catch (Exception $e) {
+            DB::commit();
+            return $this->responseSuccess('Gửi đánh giá thành công!');
+        } catch (Exception $e) {
             DB::rollBack();
             throw new Exception($e->getMessage());
         }
     }
 
     // Tạo thiết kế
-    public function productCustom(Request $request) {
+    public function productCustom(Request $request)
+    {
         $product = Product::with(['image', 'image_back', 'galleries'])->find($request->product_id);
         return view('site.products.product_custom', compact('product'));
     }
 
     // Tìm kiếm trang list product
-    public function searchProduct(Request $request) {
+    public function searchProduct(Request $request)
+    {
         $query = Product::query()->where('status', 1);
         if (!empty($request->cate_id)) {
             $query->where('cate_id', $request->cate_id);
@@ -1011,12 +1046,13 @@ class FrontController extends Controller
         $products = $query->paginate(12);
         $title = 'Tìm kiếm';
         $short_des = 'Kết quả tìm kiếm';
-        $title_sub = 'Tìm thấy '.count($products).' kết quả phù hợp';
+        $title_sub = 'Tìm thấy ' . count($products) . ' kết quả phù hợp';
         return view('site.products.product_category', compact('products', 'title', 'short_des', 'title_sub'));
     }
 
     // đặt hàng thiết kế
-    public function designOrder(Request $request) {
+    public function designOrder(Request $request)
+    {
         $formCustom = json_decode($request->input('formCustom'), true);
         $dataFront = json_decode($request->input('dataFront'), true);
         $dataBack = json_decode($request->input('dataBack'), true);
@@ -1121,19 +1157,21 @@ class FrontController extends Controller
         return $this->responseSuccess('Đặt hàng thành công!');
     }
 
-    public function searchProducts(Request $request) {
+    public function searchProducts(Request $request)
+    {
         $keyword = $request->keyword;
         $products =  Product::query()->with(['image'])
-            ->where('status',1)
-            ->where('name', 'like', '%'.$keyword.'%')
+            ->where('status', 1)
+            ->where('name', 'like', '%' . $keyword . '%')
             ->get();
 
         return view('site.search', compact('products', 'keyword'));
     }
 
-    public function clearData(Request $request) {
-       File::query()->whereIn('model_type', [Room::class, RoomGallery::class])->delete();
+    public function clearData(Request $request)
+    {
+        File::query()->whereIn('model_type', [Room::class, RoomGallery::class])->delete();
 
-       RoomGallery::query()->delete();
+        RoomGallery::query()->delete();
     }
 }

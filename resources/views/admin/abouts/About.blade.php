@@ -8,6 +8,7 @@
             this.image = {};
             this.image_back = {};
             this.image_front = {};
+            this.video_image = {};
         }
 
         after(form) {
@@ -73,6 +74,17 @@
             this._image_front = new Image(value, this);
         }
 
+        get video_image() {
+            return this._video_image;
+        }
+
+        set video_image(value) {
+            this._video_image = new Image(value, this);
+        }
+
+        clearVideoImage() {
+            if (this.video_image) this.video_image.clear();
+        }
 
         get submit_data() {
             let data = {
@@ -83,8 +95,8 @@
                 experience_number: this.experience_number,
                 experience_text: this.experience_text,
                 phone_number: this.phone_number,
-                results: this.results.map(val => val.submit_data)
-
+                results: this.results.map(val => val.submit_data),
+                video_url: this.video_url
             }
 
             data = jsonToFormData(data);
@@ -95,7 +107,8 @@
             if (image_back) data.append('image_back', image_back);
             let image_front = this.image_front.submit_data;
             if (image_front) data.append('image_front', image_front);
-
+            let video_image = this.video_image.submit_data;
+            if (video_image) data.append('video_image', video_image);
             return data;
         }
     }

@@ -77,6 +77,7 @@ class AboutController extends Controller
             $object->experience_number = $request->experience_number;
             $object->experience_text = $request->experience_text;
             $object->phone_number = $request->phone_number;
+            $object->video_url = $request->video_url;
 
             $results = $request->input('results', []);
             $filtered = collect($results)
@@ -112,6 +113,12 @@ class AboutController extends Controller
                 FileHelper::uploadFileToCloudflare($request->image_front, $object->id, ThisModel::class, 'image_front');
             }
 
+            if($request->video_image) {
+                if($object->video_image) {
+                    FileHelper::deleteFileFromCloudflare($object->video_image, $object->id, ThisModel::class, 'video_image');
+                }
+                FileHelper::uploadFileToCloudflare($request->video_image, $object->id, ThisModel::class, 'video_image');
+            }
 
             DB::commit();
             $json->success = true;
@@ -135,6 +142,15 @@ class AboutController extends Controller
         } else {
             if($object->image) {
                 FileHelper::deleteFileFromCloudflare($object->image, $object->id, ThisModel::class, 'image');
+            }
+            if($object->video_image) {
+                FileHelper::deleteFileFromCloudflare($object->video_image, $object->id, ThisModel::class, 'video_image');
+            }
+            if($object->image_back) {
+                FileHelper::deleteFileFromCloudflare($object->image_back, $object->id, ThisModel::class, 'image_back');
+            }
+            if($object->image_front) {
+                FileHelper::deleteFileFromCloudflare($object->image_front, $object->id, ThisModel::class, 'image_front');
             }
             $object->delete();
             $message = array(

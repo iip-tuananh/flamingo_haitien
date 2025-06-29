@@ -55,6 +55,11 @@ class About extends BaseModel
         return $this->morphOne(File::class, 'model')->where('custom_field', 'image_front');
     }
 
+    public function video_image()
+    {
+        return $this->morphOne(File::class, 'model')->where('custom_field', 'video_image');
+    }
+
     public function category()
     {
         return $this->belongsTo('App\Model\Admin\PostCategory', 'cate_id', 'id');

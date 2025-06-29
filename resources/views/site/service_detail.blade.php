@@ -1,13 +1,13 @@
 @extends('site.layouts.master')
 
 @section('title')
-    {{ $service->name }} - {{ $config->web_title }}
+    {{ $service->name }}
 @endsection
 @section('description')
-    {{ strip_tags(html_entity_decode($config->introduction)) }}
+    {{ strip_tags(html_entity_decode($service->description)) }}
 @endsection
 @section('image')
-    {{ @$service->image->path ?? '' }}
+    {{ $service->image ? $service->image->path : 'https://placehold.co/1920x1080' }}
 @endsection
 
 @section('css')
@@ -15,68 +15,88 @@
 @endsection
 
 @section('content')
-    <div class="wptb-page-heading">
-        <div class="wptb-item--inner"
-             style=" background-image:
-                /* Lớp mờ (ví dụ: đen mờ 50%) */
-                linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-                /* Ảnh gốc */
-                url('{{ @$service->image->path ?? '' }}');
-            background-size: cover;
-            background-position: center;"
-        >
-            <div class="wptb-item-layer wptb-item-layer-one">
-                <img src="/site/images/circle.png" alt="img">
+    <!--  section  -->
+    <div class="content-section parallax-section hero-section hidden-section" data-scrollax-parent="true">
+        <div class="bg par-elem " data-bg="{{ $service->image ? $service->image->path : 'https://placehold.co/1920x1080' }}" data-scrollax="properties: { translateY: '30%' }"></div>
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="section-title">
+                <h4>Tiện ích</h4>
+                <h2>{{ $service->name }}</h2>
+                <div class="section-separator"><span><i class="fa-thin fa-gem"></i></span></div>
             </div>
-            <h2 class="wptb-item--title ">{{ $service->name }}</h2>
+        </div>
+        <div class="hero-section-scroll">
+            <div class="mousey">
+                <div class="scroller"></div>
+            </div>
+        </div>
+        <div class="dec-corner dc_lb"></div>
+        <div class="dec-corner dc_rb"></div>
+        <div class="dec-corner dc_rt"></div>
+        <div class="dec-corner dc_lt"></div>
+    </div>
+    <!-- section end  -->
+    <!--content-->
+    <div class="content">
+        <!-- breadcrumbs-wrap  -->
+        <div class="breadcrumbs-wrap">
+            <div class="container">
+                <a href="{{ route('front.home-page') }}">Trang chủ</a><a href="{{ route('front.services') }}">Tiện ích</a><span>{{ $service->name }}</span>
+            </div>
+        </div>
+        <!--breadcrumbs-wrap end  -->
+        <!-- section   -->
+        <div class="content-section">
+            {{-- <div class="section-dec"></div> --}}
+            <div class="content-dec2 fs-wrapper"></div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="post-container">
+                            <div class="dec-container">
+                                <div class="text-block">
+                                    <div class="text-block post-single_tb">
+                                        <div class="text-block-container">
+                                            <div class="tbc_subtitle">{{ $service->name }}</div>
+                                            {!! $service->content !!}
+                                        </div>
+                                        <div class="tbc-separator"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <!-- main-sidebar -->
+                        <div class="main-sidebar fixed-bar">
+                            <!-- main-sidebar-widget-->
+                            <div class="main-sidebar-widget">
+                                <h3>Bài viết liên quan</h3>
+                                <div class="recent-post-widget">
+                                    <ul>
+                                        @foreach ($otherServices as $service)
+                                        <li>
+                                            <div class="recent-post-img"><a href="{{route('front.getServiceDetail', $service->slug)}}"><img src="{{ $service->image ? $service->image->path : 'https://placehold.co/100x100' }}"
+                                                        alt=""></a></div>
+                                            <div class="recent-post-content">
+                                                <h4><a href="{{route('front.getServiceDetail', $service->slug)}}">{{ $service->name }}</a></h4>
+                                            </div>
+                                        </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- main-sidebar-widget end-->
+                        </div>
+                        <!-- main-sidebar end-->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <!-- Details Content -->
-    <section class="blog-details">
-        <div class="container">
-            <div class="row">
-                <!-- Service Navigation List -->
-
-                <div class="col-lg-8 col-md-8 mb-5 mb-md-0 ps-md-0">
-                    <div class="blog-details-inner">
-                        <div class="post-content" style="text-align: justify">
-                            <div class="post-header">
-                                <h1 class="post-title">{{ $service->name }}</h1>
-                            </div>
-                            <div class="fulltext">
-                                {!! $service->content !!}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 pe-md-5">
-                    <div class="sidebar">
-                        <div class="sidenav">
-                            <ul class="side_menu">
-                                @foreach($otherServices as $item)
-                                    <li class="menu-item ">
-                                        <a href="{{ route('front.getServiceDetail', $item->slug) }}" class="d-flex align-items-center justify-content-between">
-                                                <span>
-                                                    {{ $item->name }}
-                                                </span>
-                                            <i class="bi bi-chevron-right"></i>
-                                        </a>
-                                    </li>
-
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
+    <!--content end-->
 @endsection
 
 @push('scripts')
-    <script>
-    </script>
 @endpush

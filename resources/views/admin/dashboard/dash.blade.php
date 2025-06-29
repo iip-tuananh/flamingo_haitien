@@ -90,7 +90,7 @@ Admin Panel - {{ $config->web_title }}
         <div class="small-box bg-success">
             <div class="inner text-center">
                 <h3 class="text-orange">{{ $data['services'] ?? 0 }}</h3>
-                <p>Dịch vụ</p>
+                <p>Tiện ích</p>
             </div>
             <div class="icon">
                 <i class="fas fa-cogs"></i>

@@ -19,20 +19,22 @@
                             <a href="{{route('front.home-page')}}">Trang Chủ</a>
                             <!--second level -->
                         </li>
-                        <li><a href="">Về Chúng Tôi</a></li>
+                        <li><a href="{{route('front.abouts')}}">Về Chúng Tôi</a></li>
                         <li>
                             <a href="#">Phòng<i class="fas fa-caret-down"></i></a>
                             <!--second level -->
                             <ul>
-                                <li><a href="">Loại Phòng 1</a></li>
-                                <li><a href="">Loại Phòng 2</a></li>
-                                <li><a href="">Loại Phòng 3</a></li>
+                                @foreach ($rooms as $room)
+                                    <li><a href="{{route('front.getRoom', $room->slug)}}">{{ $room->name }}</a></li>
+                                @endforeach
 
                             </ul>
                             <!--second level end-->
                         </li>
-                        <li><a href="">Tiện ích</a></li>
-                        <li><a href="">Tin Tức</a></li>
+                        <li><a href="{{route('front.services')}}">Tiện ích</a></li>
+                        @foreach ($postCategories as $postCategory)
+                            <li><a href="{{route('front.blogs', $postCategory->slug)}}">{{ $postCategory->name }}</a></li>
+                        @endforeach
                         <li><a href="{{route('front.contact-us')}}">Liên Hệ</a></li>
                     </ul>
                 </nav>

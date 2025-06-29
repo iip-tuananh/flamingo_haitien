@@ -46,7 +46,7 @@ class GalleryController extends Controller
                 return formatDate($object->updated_at);
             })
             ->addColumn('image', function ($object) {
-                return '<img style ="max-width:300px !important" class="thumbnail img-preview" src="' . ($object->image ? $object->image->path : '') . '">';
+                return $object->image ? $object->image->path : 'https://placehold.co/600x400';
             })
             ->addColumn('action', function ($object) {
                 $result = '';

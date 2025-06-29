@@ -48,8 +48,15 @@ Quản lý ảnh thư viện
         },
         columns: [
             {data: 'DT_RowIndex', orderable: false, title: "STT", className: "text-center"},
+            {data: 'image',
+                title: 'Ảnh',
+                width: '140px',
+                className: 'text-center',
+                render: function(data){
+                    return `<img src="${data}" style="height:80px; object-fit:cover;">`;
+                }
+            },
             {data: 'title', title: 'Tiêu đề'},
-            {data: 'image', title: 'Ảnh'},
             {data: 'updated_at', title: 'Ngày cập nhật'},
             {data: 'updated_by', title: 'Người cập nhật'},
             {data: 'action', orderable: false, title: "Hành động"}

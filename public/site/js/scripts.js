@@ -20,12 +20,12 @@ function initDiamant() {
         if ($(this).attr("data-bg")) $(this).css("background-image", "url(" + $(this).data("bg") + ")");
     });
     //   lightGallery------------------
-    $(".image-popup , .single-popup-image").lightGallery({
-        selector: "this",
-        cssEasing: "cubic-bezier(0.25, 0, 0.25, 1)",
-        download: false,
-        counter: false
-    });
+    // $(".image-popup , .single-popup-image").lightGallery({
+    //     selector: "this",
+    //     cssEasing: "cubic-bezier(0.25, 0, 0.25, 1)",
+    //     download: false,
+    //     counter: false
+    // });
     $(".lightgallery").lightGallery({
         selector: ".lightgallery a.popup-image , .lightgallery  a.popgal",
         cssEasing: "cubic-bezier(0.25, 0, 0.25, 1)",
@@ -33,12 +33,12 @@ function initDiamant() {
         loop: false,
         counter: false
     });
-    $('#html5-videos , .inithtml5video').lightGallery({
-        selector: 'this',
-        counter: false,
-        download: false,
-        zoom: false
-    });
+    // $('#html5-videos , .inithtml5video').lightGallery({
+    //     selector: 'this',
+    //     counter: false,
+    //     download: false,
+    //     zoom: false
+    // });
 
     var vid_src = $(".popup_video").data("videolink");
     $(".lg-video-object").find("source").attr("src", vid_src);

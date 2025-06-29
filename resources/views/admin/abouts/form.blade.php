@@ -107,7 +107,7 @@
                 <div class="invalid-feedback d-block"><% errors.phone_number[0] %></div>
             </div> --}}
 
-            <div class="form-group">
+            {{-- <div class="form-group">
                 <label class="form-label">Kết quả đạt được</label>
                 <div ng-repeat="(idx, item) in form.results" class="result-item">
                     <input type="text" class="form-control" placeholder="Nhập kết quả" ng-model="item.title" />
@@ -119,7 +119,44 @@
                     </button>
                 </div>
                 <div class="invalid-feedback d-block"><% errors.results %></div>
+            </div> --}}
+
+            <hr>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label class="form-label">Video</label>
+                        <input type="text" class="form-control" ng-model="form.video_url">
+                        <div class="invalid-feedback d-block"><% errors.video_url[0] %></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Ảnh video -->
+                    <div class="form-group text-center">
+                        <div class="main-img-preview">
+                            <label class="required-label">Ảnh video</label>
+                            <p class="help-block-img">* Ảnh định dạng: jpg, png</p>
+                            <img class="thumbnail img-preview" ng-src="<% form.video_image.path %>">
+                        </div>
+                        <div class="input-group" style="width: 100%; text-align: center">
+                            <div class="input-group-btn" style="margin: 0 auto">
+                                <div class="fileUpload fake-shadow cursor-pointer">
+                                    <label class="mb-0" for="<% form.video_image.element_id %>">
+                                        <i class="glyphicon glyphicon-upload"></i> Chọn ảnh
+                                    </label>
+                                    <input class="d-none" id="<% form.video_image.element_id %>" type="file"
+                                        class="attachment_upload" accept=".jpg,.jpeg,.png">
+                                </div>
+                            </div>
+                        </div>
+                        <span class="invalid-feedback d-block" role="alert">
+                            <strong><% errors.video_image[0] %></strong>
+                        </span>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 
